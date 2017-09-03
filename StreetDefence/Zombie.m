@@ -10,7 +10,7 @@
 
 @implementation Zombie
 
-@synthesize room, destination, wayRoom, destRoom, wayPoint, hp;
+@synthesize room, destination, wayRoom, destRoom, wayPoint, hp, canSpit, type;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -24,25 +24,34 @@
     if ( self = [super initWithFrame:CGRectMake(_startPoint.x, _startPoint.y, 6, 6)] ) {
         if ( _type == 1 ) {
             self.backgroundColor = [UIColor clearColor];
-            dot = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 6, 6)];
-            dot.image = [UIImage imageNamed:@"zombieDot.png"];
+            dot = [[UIImageView alloc] initWithFrame:CGRectMake(-6, -6, 12, 12)];
+            dot.image = [UIImage imageNamed:@"zombieMarker.png"];
             [self addSubview:dot];
             speed = 1; hp = 1;
         }
         else if ( _type == 2 ) {
             self.backgroundColor = [UIColor clearColor];
-            dot = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 6, 6)];
-            dot.image = [UIImage imageNamed:@"zombieDogDot.png"];
+            dot = [[UIImageView alloc] initWithFrame:CGRectMake(-6, -6, 12, 12)];
+            dot.image = [UIImage imageNamed:@"zombieDogMarker.png"];
             [self addSubview:dot];
             speed = 2; hp = 1;
         }
         else if ( _type == 3 ) {
             self.backgroundColor = [UIColor clearColor];
-            dot = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 6, 6)];
-            dot.image = [UIImage imageNamed:@"zombieBruteDot.png"];
+            dot = [[UIImageView alloc] initWithFrame:CGRectMake(-6, -6, 12, 12)];
+            dot.image = [UIImage imageNamed:@"zombieBruteMarker.png"];
             [self addSubview:dot];
             speed = 1; hp = 3;
         }
+        else if ( _type == 4 ) {
+            self.backgroundColor = [UIColor clearColor];
+            dot = [[UIImageView alloc] initWithFrame:CGRectMake(-6, -6, 12, 12)];
+            dot.image = [UIImage imageNamed:@"zombieSpitterMarker.png"];
+            [self addSubview:dot];
+            canSpit = YES;
+            speed = 1; hp = 2;
+        }
+        type = _type;
     }
     return self;
 }
@@ -89,6 +98,10 @@
     } completion:^(BOOL finished){
         [self removeFromSuperview];
     }];*/
+}
+
+- (void) ResetSpit {
+    canSpit = YES;
 }
 
 @end

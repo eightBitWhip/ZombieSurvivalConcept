@@ -51,6 +51,9 @@
         detailView.backgroundColor = [UIColor clearColor];
         [console addSubview:detailView];
         
+        teamView = [[UIView alloc] initWithFrame:CGRectMake(34, 213, 250, 50)];
+        teamView.backgroundColor = [UIColor clearColor]; [console addSubview:teamView];
+        
         SDLogo *sdlogo = [[SDLogo alloc] initWithFrame:CGRectMake(-14, 100, 30, 30)];
         [detailView addSubview:sdlogo];
         
@@ -62,9 +65,9 @@
         [cancel addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(Cancel)]];
         [console addSubview:cancel];
         
-        UIView *picks = [[UIView alloc] initWithFrame:CGRectMake(10, 190, 320, 80)];
+        /*UIView *picks = [[UIView alloc] initWithFrame:CGRectMake(10, 190, 320, 80)];
         picks.backgroundColor = [UIColor clearColor];
-        [console addSubview:picks];
+        [console addSubview:picks];*/
         
         [self AddDescBox];
         
@@ -168,20 +171,20 @@
     if ( amountSelected == 0 ) {
         amountSelected++;
         pick1 = _selected.view.tag;
-        [self AddCharToPicks:34 ImageName:[NSString stringWithFormat:@"%@Port.png",[[characters objectAtIndex:pick1] objectForKey:@"name"]]];
+        [self AddCharToPicks:0 ImageName:[NSString stringWithFormat:@"%@Port.png",[[characters objectAtIndex:pick1] objectForKey:@"name"]] Ident:pick1];
     }
     else if ( amountSelected == 1 ) {
         if ( pick1 != _selected.view.tag ) {
             amountSelected++;
             pick2 = _selected.view.tag;
-            [self AddCharToPicks:134 ImageName:[NSString stringWithFormat:@"%@Port.png",[[characters objectAtIndex:pick2] objectForKey:@"name"]]];
+            [self AddCharToPicks:100 ImageName:[NSString stringWithFormat:@"%@Port.png",[[characters objectAtIndex:pick2] objectForKey:@"name"]] Ident:pick2];
         }
     }
     else if ( amountSelected == 2 ) {
         if ( pick1 != _selected.view.tag && pick2 != _selected.view.tag ) {
             amountSelected++;
             pick3 = _selected.view.tag;
-            [self AddCharToPicks:234 ImageName:[NSString stringWithFormat:@"%@Port.png",[[characters objectAtIndex:pick3] objectForKey:@"name"]]];
+            [self AddCharToPicks:200 ImageName:[NSString stringWithFormat:@"%@Port.png",[[characters objectAtIndex:pick3] objectForKey:@"name"]] Ident:pick3];
         }
     }
     
@@ -203,15 +206,18 @@
     }
 }
 
-- (void) AddCharToPicks:(float)_xPoint ImageName:(NSString *)_image {
-    UIImageView *pic = [[UIImageView alloc] initWithFrame:CGRectMake(_xPoint, 213, 50, 50)];
+- (void) AddCharToPicks:(float)_xPoint ImageName:(NSString *)_image Ident:(int)_iTag {
+    UIImageView *pic = [[UIImageView alloc] initWithFrame:CGRectMake(_xPoint, 0, 50, 50)];
     pic.image = [UIImage imageNamed:_image];
-    [console addSubview:pic];
+    [teamView addSubview:pic];
     
     UIButton *cancel = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 25, 25)];
-    cancel.center = pic.center;
+    cancel.center = pic.center; cancel.tag = _iTag;
     [cancel setImage:[UIImage imageNamed:@"removeCharacter.png"] forState:UIControlStateNormal];
-    [console addSubview:cancel];
+    [cancel addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(RemoveCharacter:)]];
+    [teamView addSubview:cancel];
+    
+    [console bringSubviewToFront:teamView];
 }
 
 - (void) AddDescBox {
@@ -236,6 +242,33 @@
     tip3.textColor = [UIColor greenColor]; tip3.numberOfLines = 6;
     tip3.text = @"- Trigger speed denotes the time taken to shoot, reload speed is the time taken to reload (15 shots per clip).";
     [tipsBox addSubview:tip3];
+}
+
+- (void) RemoveCharacter:(UITapGestureRecognizer *)_selected {
+    if ( _selected.view.tag == pick1 ) {
+        pick1 = pick2; pick2 = pick3; pick3 = -1;
+    }
+    else if ( _selected.view.tag == pick2 ) {
+        pick2 = pick3; pick3 = -1;
+    }
+    else {
+        pick3 = -1;
+    }
+    amountSelected--;
+    
+    [teamView removeFromSuperview];
+    teamView = [[UIView alloc] initWithFrame:CGRectMake(34, 213, 250, 50)];
+    teamView.backgroundColor = [UIColor clearColor]; [console addSubview:teamView];
+    
+    if ( pick1 != -1 ) {
+        [self AddCharToPicks:0 ImageName:[NSString stringWithFormat:@"%@Port.png",[[characters objectAtIndex:pick1] objectForKey:@"name"]] Ident:pick1];
+    }
+    if ( pick2 != -1 ) {
+            [self AddCharToPicks:100 ImageName:[NSString stringWithFormat:@"%@Port.png",[[characters objectAtIndex:pick2] objectForKey:@"name"]] Ident:pick2];
+    }
+    if ( pick3 != -1 ) {
+            [self AddCharToPicks:200 ImageName:[NSString stringWithFormat:@"%@Port.png",[[characters objectAtIndex:pick3] objectForKey:@"name"]] Ident:pick3];
+    }    
 }
 
 @end

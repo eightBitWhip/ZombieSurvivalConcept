@@ -37,5 +37,6 @@
 - (UILabel*) CreateAmmoLabel:(CGRect)_frame;
 
 - (BOOL) CanSelectTeam;
+- (BOOL) CanStartGame;
 
 @end

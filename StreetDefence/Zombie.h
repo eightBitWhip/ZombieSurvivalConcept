@@ -13,12 +13,14 @@
     UIImageView *dot;
 }
 
-@property (nonatomic) int room, wayRoom, destRoom, hp;
+@property (nonatomic) int room, wayRoom, destRoom, hp, type;
 @property (nonatomic) CGPoint destination, wayPoint;
+@property (nonatomic) bool canSpit;
 
 - (id) initWithPoint:(CGPoint)_startPoint Type:(int)_type;
 
 - (void) Move;
 - (void) Die;
+- (void) ResetSpit;
 
 @end

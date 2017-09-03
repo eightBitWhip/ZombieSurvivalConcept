@@ -48,7 +48,7 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES"
-      simulatorIPhoneDisplay = "3.000000">
+      simulatorIPhoneDisplay = "2.000000">
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"

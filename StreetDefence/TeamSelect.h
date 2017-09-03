@@ -15,7 +15,7 @@
     int amountSelected, pick1, pick2, pick3;
     NSMutableArray *characters;
     NSObject *parent;
-    UIView *selectedScreen, *detailView, *highlight, *console;
+    UIView *selectedScreen, *detailView, *highlight, *console, *teamView;
     UIButton *confirmButton;
     SDLogo *picksSD;
 }
@@ -27,8 +27,8 @@
 - (void) initChars;
 - (void) Cancel;
 - (void) Done;
-- (void) AddCharToPicks:(float)_xPoint ImageName:(NSString*)_image;
-
+- (void) AddCharToPicks:(float)_xPoint ImageName:(NSString*)_image Ident:(int)_iTag;
+- (void) RemoveCharacter:(UITapGestureRecognizer*)_selected;
 - (void) AddDescBox;
 
 @end

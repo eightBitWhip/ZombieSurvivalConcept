@@ -10,7 +10,9 @@
 
 #import "Kid.h"
 
-@implementation LevelSetupCharacterPanel
+@implementation LevelSetupCharacterPanel {
+    NSMutableArray *faces;
+}
 
 @synthesize charSelected, current;
 
@@ -55,7 +57,7 @@
         bg.image = [UIImage imageNamed:@"CharacterNavBg.png"];
         [self addSubview:bg];
         
-        face1 = [[CharacterIcon alloc] initWithFrame:CGRectMake(12, 30, 36, 36) KidPic:[NSString stringWithFormat:@"%@Port.png",[[charactersArr objectAtIndex:[[_tags objectAtIndex:0] intValue]] objectForKey:@"name"]]];
+        /*face1 = [[CharacterIcon alloc] initWithFrame:CGRectMake(12, 30, 36, 36) KidPic:[NSString stringWithFormat:@"%@Port.png",[[charactersArr objectAtIndex:[[_tags objectAtIndex:0] intValue]] objectForKey:@"name"]]];
         [self addSubview:face1]; [face1 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(CharSelected:)]];
         face1.tag = [[_tags objectAtIndex:0] intValue];
         
@@ -65,7 +67,23 @@
         
         face3 = [[CharacterIcon alloc] initWithFrame:CGRectMake(12, 170, 36, 36) KidPic:[NSString stringWithFormat:@"%@Port.png",[[charactersArr objectAtIndex:[[_tags objectAtIndex:2] intValue]] objectForKey:@"name"]]];
         [self addSubview:face3]; [face3 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(CharSelected:)]];
-        face3.tag = [[_tags objectAtIndex:2] intValue];
+        face3.tag = [[_tags objectAtIndex:2] intValue];*/
+        
+        faces = [[NSMutableArray alloc] initWithCapacity:3];
+        float yPos = 30;
+        
+        for ( NSNumber *tag in _tags ) {
+            
+            if ( [charactersArr count] > [tag intValue] ) {
+            
+                CharacterIcon *face = [[CharacterIcon alloc] initWithFrame:CGRectMake(12, yPos, 36, 36) KidPic:[NSString stringWithFormat:@"%@Port.png",[[charactersArr objectAtIndex:[tag intValue]] objectForKey:@"name"]]];
+                [self addSubview:face]; [face addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(CharSelected:)]];
+                face.tag = [tag intValue]; [faces addObject:face];
+                yPos += 70;
+                
+            }
+            
+        }
         
         selected = [[UIView alloc] initWithFrame:CGRectMake(11, 0, 38, 38)];
         selected.backgroundColor = [UIColor colorWithWhite:0 alpha:1];
@@ -84,7 +102,7 @@
         bg.image = [UIImage imageNamed:@"CharacterNavBg.png"];
         [self addSubview:bg];
         
-        face1 = [[CharacterIcon alloc] initWithFrame:CGRectMake(12, 30, 36, 36) KidPic:[NSString stringWithFormat:@"%@Port.png",[(Kid*)[_kids objectAtIndex:0] name]]];
+        /*face1 = [[CharacterIcon alloc] initWithFrame:CGRectMake(12, 30, 36, 36) KidPic:[NSString stringWithFormat:@"%@Port.png",[(Kid*)[_kids objectAtIndex:0] name]]];
         [self addSubview:face1]; [face1 addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(CharSelected:)]];
         face1.k = [_kids objectAtIndex:0];
         
@@ -103,7 +121,20 @@
         face3.k = [_kids objectAtIndex:2];
         
         face3.k.ammoLabel = [self CreateAmmoLabel:CGRectMake(12, 209, 36, 20)];
-        [self addSubview:face3.k.ammoLabel];
+        [self addSubview:face3.k.ammoLabel];*/
+        
+        faces = [[NSMutableArray alloc] initWithCapacity:3];
+        float yPos = 30;
+        
+        for ( Kid *k in _kids ) {
+            CharacterIcon *face = [[CharacterIcon alloc] initWithFrame:CGRectMake(12, yPos, 36, 36) KidPic:[NSString stringWithFormat:@"%@Port.png",[(Kid*)k name]]];
+            [self addSubview:face]; [face addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(CharSelected:)]];
+            face.k = k;
+            
+            face.k.ammoLabel = [self CreateAmmoLabel:CGRectMake(12, yPos+39, 36, 20)];
+            [self addSubview:face.k.ammoLabel]; [faces addObject:face];
+            yPos += 70;
+        }
         
         selected = [[UIView alloc] initWithFrame:CGRectMake(11, 0, 38, 38)];
         selected.backgroundColor = [UIColor colorWithWhite:0 alpha:1];
@@ -115,7 +146,10 @@
 - (void) CharSelected:(UITapGestureRecognizer *)_sender {
     CharacterIcon *touched = (CharacterIcon*)_sender.view;
     
-    [face1.k Deselect]; [face2.k Deselect]; [face3.k Deselect];
+    //[face1.k Deselect]; [face2.k Deselect]; [face3.k Deselect];
+    for ( CharacterIcon *c in faces ) {
+        [c.k Deselect];
+    }
     
     if ( !touched.died ) {
         [touched.k Select];
@@ -127,38 +161,53 @@
 }
 
 - (void) KidDied:(Kid *)_kid {
-    if ( face1.k == _kid ) { [face1 Dead]; }
+    /*if ( face1.k == _kid ) { [face1 Dead]; }
     else if ( face2.k == _kid ) { [face2 Dead]; }
-    else if ( face3.k == _kid ) { [face3 Dead]; }
+    else if ( face3.k == _kid ) { [face3 Dead]; }*/
+    for ( CharacterIcon *c in faces ) {
+        if ( c.k == _kid ) { [c Dead]; }
+    }
 }
 - (void) KidReloadToggle:(Kid *)_kid {
-    if ( face1.k == _kid ) { [face1 ReloadToggle]; }
+    /*if ( face1.k == _kid ) { [face1 ReloadToggle]; }
     else if ( face2.k == _kid ) { [face2 ReloadToggle]; }
-    else if ( face3.k == _kid ) { [face3 ReloadToggle]; }
+    else if ( face3.k == _kid ) { [face3 ReloadToggle]; }*/
+    for ( CharacterIcon *c in faces ) {
+        if ( c.k == _kid ) { [c ReloadToggle]; }
+    }
 }
 
 - (NSMutableArray*) GetKidsForGame {
     NSMutableArray *kids = [[NSMutableArray alloc] init];
     
-    if ( face1.startingLocation.x ) { Kid *k1 = [[Kid alloc] initData:[charactersArr objectAtIndex:face1.tag] Start:face1.startingLocation];
+    /*if ( face1.startingLocation.x ) { Kid *k1 = [[Kid alloc] initData:[charactersArr objectAtIndex:face1.tag] Start:face1.startingLocation];
         [kids addObject:k1]; }
     
     if ( face2.startingLocation.x ) { Kid *k2 = [[Kid alloc] initData:[charactersArr objectAtIndex:face2.tag] Start:face2.startingLocation];
         [kids addObject:k2]; }
     
     if ( face3.startingLocation.x ) { Kid *k3 = [[Kid alloc] initData:[charactersArr objectAtIndex:face3.tag] Start:face3.startingLocation];
-        [kids addObject:k3]; }
+        [kids addObject:k3]; }*/
+    for ( CharacterIcon *c in faces ) {
+        if ( c.startingLocation.x ) {
+            Kid *k = [[Kid alloc] initData:[charactersArr objectAtIndex:c.tag] Start:c.startingLocation];
+            [kids addObject:k];
+        }
+    }
     
     return kids;
 }
 - (NSMutableArray*) GetKidsForLevelComplete {
     NSMutableArray *kids = [[NSMutableArray alloc] init];
     
-    if ( face1.k ) { [kids addObject:face1.k]; }
+    /*if ( face1.k ) { [kids addObject:face1.k]; }
     
     if ( face2.k ) { [kids addObject:face2.k]; }
     
-    if ( face3.k ) { [kids addObject:face3.k]; }
+    if ( face3.k ) { [kids addObject:face3.k]; }*/
+    for ( CharacterIcon *c in faces ) {
+        if ( c.k ) { [kids addObject:c.k]; }
+    }
     
     return kids;
 }
@@ -199,6 +248,19 @@
 - (BOOL) CanSelectTeam {
     if ( [charactersArr count] > 3 ) return YES;
     else return NO;
+}
+
+- (BOOL) CanStartGame {
+    
+    bool canStart = YES;
+    
+    for ( CharacterIcon *c in faces ) {
+        if ( !c.startingLocation.x ) {
+            canStart = NO;
+        }
+    }
+    
+    return canStart;
 }
 
 @end

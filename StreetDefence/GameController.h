@@ -21,7 +21,7 @@
     NSMutableArray *zombies, *rooms, *zomStarts;
     NSArray *zombieTypes;
     NSTimer *gameTimer, *zombieAddTimer;
-    UIView *mapScreen;
+    UIView *mapScreen, *eventMessage;
     LevelSetupCharacterPanel *characterPanel;
     PathFindingUt *pfut;
     int score, zombieCount;
@@ -45,5 +45,7 @@
 - (void) ZomSetNewWay:(Zombie*)_zombie;
 - (void) ZomSetNewDest:(Zombie*)_zombie;
 - (void) LevelFinishedPointsDone;
+- (void) ShowEventMessage:(int)_type;
+- (void) AddSpit:(CGPoint)_local;
 
 @end

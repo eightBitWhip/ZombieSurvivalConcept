@@ -20,7 +20,7 @@
 @interface GameController () {
     UILabel *scoreLabel;
     bool paused;
-    NSMutableArray *deadKids;
+    NSMutableArray *deadKids, *spitPatches;
 }
 
 @end
@@ -46,6 +46,7 @@
     rooms = [[NSMutableArray alloc] init];
     zomStarts = [[NSMutableArray alloc] init];
     deadKids = [[NSMutableArray alloc] init];
+    spitPatches = [[NSMutableArray alloc] init];
     score = 0; zombieCount = 0;
     pfut = [[PathFindingUt alloc] initWithLevel:level];
     paused = NO;
@@ -164,10 +165,13 @@
             }
         }
         
-        Zombie *deadZombie;
+        NSMutableArray *deadZombies = [NSMutableArray new];
         for ( Zombie *z in zombies ) {
-            if ( z.center.x - k.center.x < 35 && z.center.x - k.center.x > -35 && z.center.y - k.center.y < 35 && z.center.y - k.center.y > -35 ) {
-                z.destination = k.center;
+            if ( z.center.x - k.center.x < 50 && z.center.x - k.center.x > -50 && z.center.y - k.center.y < 50 && z.center.y - k.center.y > -50 ) {
+                //z.destRoom = k.room;
+                //z.wayRoom = k.room;
+                //z.destination = k.center;
+                // THIS NEEDS TO BE DONE PROPERLY BECAUSE IT'S NOT WORKING
             }
             
             float range = 35; if ( k.longRange == YES ) { range = 50; }
@@ -178,16 +182,17 @@
                 z.hp--;
                 if ( z.hp == 0 ) {
                     [z Die];
-                    deadZombie = z;
+                    [deadZombies addObject:z];
                 }
             }
             else if ( z.center.x - k.center.x < 10 && z.center.x - k.center.x > -10 && z.center.y - k.center.y < 10 && z.center.y - k.center.y > -10 ) {
                 if ( k.closeQuarters == YES && arc4random() % 5 + 1 != 3 ) {
                     [k Countered];
+                    [self ShowEventMessage:1];
                     z.hp--;
                     if ( z.hp == 0 ) {
                         [z Die];
-                        deadZombie = z;
+                        [deadZombies addObject:z];
                     }
                 }
                 else {
@@ -196,7 +201,16 @@
                 }
             }
         }
-        if ( deadZombie ) { [zombies removeObject:deadZombie]; score +=25; }
+        score += [deadZombies count]*25;
+        [zombies removeObjectsInArray:deadZombies];
+        
+        for ( UIImageView *spit in spitPatches ) {
+            if ( CGRectIntersectsRect(k.frame, spit.frame) ) {
+                [k Die];
+                break;
+            }
+        }
+        
         int ammoMax = 15; if ( k.extraAmmo == YES ) { ammoMax = 25; }
         k.ammoLabel.text = [NSString stringWithFormat:@"%d/%d", k.ammo, ammoMax];
     }
@@ -207,6 +221,17 @@
                 [kids removeObject:k];
                 [deadKids addObject:k];
                 [characterPanel KidDied:k];
+            }
+        }
+        @catch (NSException *e) {
+            NSLog(@"%@", e);
+        }
+    }
+    for ( int i = 0; i < [spitPatches count]; i++ ) {
+        @try {
+            UIImageView *spit = [spitPatches objectAtIndex:i];
+            if ( spit.tag == -1 ) {
+                [spitPatches removeObject:spit];
             }
         }
         @catch (NSException *e) {
@@ -225,6 +250,11 @@
                 [self ZomSetNewWay:z];
             }
             [z Move];
+        }
+        if ( z.type == 4 && z.canSpit && arc4random() % 4 == 2 ) {
+            [self AddSpit:CGPointMake(z.center.x-20+arc4random()%40, z.center.y-20+arc4random()%40)];
+            z.canSpit = NO;
+            [z performSelector:@selector(ResetSpit) withObject:nil afterDelay:4];
         }
     }
 }
@@ -409,16 +439,61 @@
 }
 
 - (void) LevelFinishedPointsDone {
-    UIView *cover = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 320)];
+    UIView *cover = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.height, 320)];
     cover.backgroundColor = [UIColor blackColor]; cover.alpha = 0;
     [self.view addSubview:cover];
     
-    if ( level == 1 ) { [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:level+1] forKey:@"currentLevel"]; }
+    if ( level < 3 ) { [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:level+1] forKey:@"currentLevel"]; }
     
     [UIView animateWithDuration:0.8 animations:^(void){
         cover.alpha = 1;
     } completion:^(BOOL finished){
         [self.navigationController popToRootViewControllerAnimated:NO];
+    }];
+}
+
+- (void) ShowEventMessage:(int)_type {
+    [eventMessage removeFromSuperview];
+    eventMessage = [[UIView alloc] initWithFrame:CGRectMake(140, 80, 200, 140)];
+    eventMessage.backgroundColor = [UIColor clearColor]; eventMessage.alpha = .6;
+    
+    UIImageView *eventImage = [[UIImageView alloc] initWithFrame:CGRectMake(80, 30, 80, 80)];
+    [eventMessage addSubview:eventImage];
+    
+    UILabel *eventLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 140)];
+    eventLabel.textAlignment = UITextAlignmentCenter; eventLabel.textColor = [UIColor greenColor];
+    eventLabel.backgroundColor = [UIColor clearColor]; eventLabel.font = [UIFont fontWithName:@"Raconteur NF" size:26.0f]; [eventMessage addSubview:eventLabel];
+    
+    switch (_type) {
+        case 1:
+            eventLabel.text = @"Knife Save!";
+            eventImage.image = [UIImage imageNamed:@"perkclose.png"];
+            break;
+            
+        default:
+            break;
+    }
+    
+    [self.view addSubview:eventMessage];
+    
+    [UIView animateWithDuration:2.5 animations:^(void){
+        eventMessage.alpha = 0;
+        eventMessage.transform = CGAffineTransformMakeRotation(2.3);
+        eventImage.frame = CGRectMake(60, 10, 120, 120);
+        eventLabel.font = [UIFont fontWithName:@"Raconteur NF" size:32.0f];
+    } completion:^(BOOL finished){ [eventMessage removeFromSuperview]; }];
+}
+
+- (void) AddSpit:(CGPoint)_local {
+    UIImageView *spit = [[UIImageView alloc] initWithFrame:CGRectMake(_local.x, _local.y, 18, 18)];
+    spit.image = [UIImage imageNamed:@"spit1.png"]; [mapScreen addSubview:spit]; spit.tag = 1;
+    [spitPatches addObject:spit];
+    
+    [UIView animateWithDuration:1.5 delay:4 options:UIViewAnimationOptionCurveLinear animations:^(void){
+        spit.alpha = 0;
+    } completion:^(BOOL finished){
+        [spit removeFromSuperview];
+        spit.tag = -1;
     }];
 }
 

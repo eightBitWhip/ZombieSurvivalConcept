@@ -56,7 +56,7 @@
     [self.view addSubview:charSetup];
     
     [lmp removeFromSuperview];
-    lmp = [[LevelMapPlanning alloc] initWithFrame:CGRectMake(60, 0, [[UIScreen mainScreen] bounds].size.height-60, 320) Parent:self Level:level];
+    lmp = [[LevelMapPlanning alloc] initWithFrame:CGRectMake(60, 0, [[UIScreen mainScreen] bounds].size.width-60, 320) Parent:self Level:level];
     [self.view addSubview:lmp];
     
     startButton.hidden = YES;
@@ -103,7 +103,8 @@
     [self.view addSubview:charSetup];
     [self.view bringSubviewToFront:team];
     
-    bool showStart = [lmp AddMarkers:[charSetup GetKidsForGame]];
+    [lmp AddMarkers:[charSetup GetKidsForGame]];
+    bool showStart = [charSetup CanStartGame];
     
     if ( showStart == YES ) { startButton.hidden = NO; }
     else { startButton.hidden = YES; }
@@ -112,7 +113,8 @@
 - (void) CharacterMoved:(NSArray *)_newLocal {
     charSetup.current.startingLocation = CGPointMake([[_newLocal objectAtIndex:0] floatValue], [[_newLocal objectAtIndex:1] floatValue]);
     
-    bool showStart = [lmp AddMarkers:[charSetup GetKidsForGame]];
+    [lmp AddMarkers:[charSetup GetKidsForGame]];
+    bool showStart = [charSetup CanStartGame];
     
     if ( showStart == YES ) { startButton.hidden = NO; }
     else { startButton.hidden = YES; }
